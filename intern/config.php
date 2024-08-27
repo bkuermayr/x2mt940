@@ -71,7 +71,7 @@ $menu_name['root']['PayPal']  = './pp_converter.php';
 $menu_name['root']['Otto Payment']  = './ottopayment.php';
 $menu_name['root']['Real.de Payment']  = './realpayment.php';
 $menu_name['root']['Adyen']  = './adyen.php';
-//$menu_name['root']['Eurobaustoff']  = './eb_converter.php';
+$menu_name['root']['Amazon Pay']  = './amazon.php';
 $menu_name['root']['Logout']  = './logout.php';
 
 $menu_name['user']['Startseite']  = './home.php'; 
@@ -81,6 +81,7 @@ if (isset($_SESSION["uid"])) {
 	if ($_SESSION['level'] >= 0) { $menu_name['user']['Real.de Payment']  = './realpayment.php'; }
 	if ($_SESSION['level'] >= 0) { $menu_name['user']['Adyen']  = './adyen.php'; }
 	if ($_SESSION['level'] >= 9) { $menu_name['user']['Eurobaustoff']  = './eb_converter.php'; }
+	if ($_SESSION['level'] >= 0) { $menu_name['user']['Amazon Pay']  = './amazon.php';
 }
 
 $menu_name['user']['Logout']  = './logout.php';

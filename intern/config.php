@@ -41,6 +41,14 @@ $adyen['toCustomer'] = "100010"; // customer range
 $adyen['extractTid'] = false; // extract real TransactionID without itemID
 $adyen['payout'] = true; // Generate payout mt940 data 
 
+# amazon payment
+$amazon['blz'] = "90000001";  // dummy BLZ for Import
+$amazon['konto'] = "9100000105"; // Default account
+$amazon['fromCustomer'] = "100000"; // customer range
+$amazon['toCustomer'] = "100010"; // customer range
+$amazon['currency'] = "EUR"; // Default Currency
+$amazon['payout'] = true; // Generate payout mt940 data
+
 
 # WWS config
 $wwsClassName = "MT940_dummyERP";

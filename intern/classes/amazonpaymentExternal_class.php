@@ -109,7 +109,7 @@ class amazonPayExternal {
 				
 				$invoiceData = $this->wwsInvoices->getInvoiceData($ppid, $fromDate, $toDate, $this->mt940param['fromCustomer'], $this->mt940param['toCustomer']);
 				
-				$defaultInvoice = 'NONREF'
+				$defaultInvoice = 'NONREF';
 				$defaultCustomer = 'AMAZON_CUSTOMER';
 				$invoiceStr = 'NONREF';
 			

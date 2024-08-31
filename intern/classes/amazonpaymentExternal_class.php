@@ -41,6 +41,7 @@ class amazonPayExternal {
 		$this->mt940param['enddate'] = null;
 		do {
 			$row = $this->infile->readCSV(',');
+			print_r($row);
 		} while ($row[0] != $this->mapping['TRANSACTION_DATE']);
 		unset($row[15]);
 		$this->ppHeader = $row;

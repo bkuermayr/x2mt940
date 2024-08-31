@@ -14,25 +14,26 @@ class amazonPayExternal {
 	private $mapping;
 	
 	public function __construct($fileName) {
+
 		include './intern/config.php';
 
-		// Initialize variables
+		// initialize variables
 		$this->mt940param = $amazon;
 		$this->data = [];
 		$this->amountTotal = 0;
 		$this->dataPos = 0;
 		$this->dataCount = 0;
-
-		// Connect to wws/erp for invoice details
+		
+		// connect to wws/erp for invoice details
+		// dynamically wws/erp connection in config.php with a new class
 		$this->wwsInvoices = new $wwsClassName();
 
 		$this->infile = new myfile($fileName);
 
-		// Load the mapping file
-		if (file_exists("./intern/mapping/" . $mapping_prefix . "amazonpayExternal.json")) {
-			$mapping = new myfile("./intern/mapping/" . $mapping_prefix . "amazonpayExternal.json", "readfull");
+		if (file_exists("./intern/mapping/".$mapping_prefix."amazonpayExternal.json")) {
+			$mapping = new myfile("./intern/mapping/".$mapping_prefix."amazonpayExternal.json","readfull");
 		} else {
-			$mapping = new myfile("./intern/mapping/amazonpayExternal.json", "readfull");
+			$mapping = new myfile("./intern/mapping/amazonpayExternal.json","readfull");
 		}
 		$this->mapping = $mapping->readJson();
 
@@ -60,9 +61,9 @@ class amazonPayExternal {
 		$this->ppHeader = $row;
 
 		// Output the final header after setting it
-		echo "<pre>Final Header: " . json_encode($this->ppHeader, JSON_PRETTY_PRINT) . "</pre>";
+		echo "<pre>Final Header: " . json_encode($this->ppHeader, JSON_PRETTY_PRINT) . "</pre>";		
 	}
-
+	
 	public function importData() {
 		if (count($this->data) > 0) {
 			return true;
@@ -71,10 +72,6 @@ class amazonPayExternal {
 		while (($row = $this->infile->readCSV(',')) !== FALSE) {
 			$rowdata = [];
 			$rowdata = array_combine($this->ppHeader,$row);
-
-			// Output each data row in JSON format for debugging
-			echo "<pre>Data Row: " . json_encode($rowdata, JSON_PRETTY_PRINT) . "</pre>";
-
 			if ($this->mt940param['startdate'] == null) {
 				$this->mt940param['startdate']	= $rowdata[$this->mapping['TRANSACTION_DATE']];
 			}

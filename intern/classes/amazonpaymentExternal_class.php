@@ -58,6 +58,7 @@ class amazonPayExternal {
 			return true;
 		}
 		
+		$rowCount = 0;
 		while (true) {
 			$row = $this->infile->readCSV(',');
 			$rowCount++;
@@ -85,19 +86,19 @@ class amazonPayExternal {
 				if ($rowdata[$this->mapping['TRANSACTION_AMOUNT']] > 0) {
 					$transactionType = "C";
 					$transactionChargeType = "D";
-					$this->amountTotal += abs($rowdata[$this->mapping['TRANSACTION_AMOUNT']]);
-					$this->amountTotal += abs($rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']]);
-					$rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']] = abs($rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']]);
+					$this->amountTotal += abs(floatval($rowdata[$this->mapping['TRANSACTION_AMOUNT']]));
+					$this->amountTotal += abs(floatval($rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']]));
+					$rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']] = abs(floatval($rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']]));
 				} else {
 					$transactionType = "D";
 					$transactionChargeType = "C";
-					$rowdata[$this->mapping['TRANSACTION_AMOUNT']] = abs($rowdata[$this->mapping['TRANSACTION_AMOUNT']]);
-					$rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']] = abs($rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']]);
+					$rowdata[$this->mapping['TRANSACTION_AMOUNT']] = abs(floatval($rowdata[$this->mapping['TRANSACTION_AMOUNT']]));
+					$rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']] = abs(floatval($rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']]));
 
-					$this->amountTotal -= abs($rowdata[$this->mapping['TRANSACTION_AMOUNT']]);
-					$this->amountTotal -= abs($rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']]);
-				}
-			
+					$this->amountTotal -= abs(floatval($rowdata[$this->mapping['TRANSACTION_AMOUNT']]));
+					$this->amountTotal -= abs(floatval($rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']]));
+				}		
+					
 				$name = strtoupper(preg_replace( '/[^a-z0-9 ]/i', '_', $rowdata[$this->mapping['TRANSACTION_SELLER_NAME']]));
 
 				$fromDate = date("Y-m-d",strtotime($rowdata[$this->mapping['ORDER_DATE']]));

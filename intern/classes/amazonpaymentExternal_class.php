@@ -66,18 +66,28 @@ class amazonPayExternal {
         while (($row = $this->infile->readCSV(',')) !== FALSE) {
             $rowdata = array_combine($this->ppHeader, $row);
 
+            // Debug: Output row data after combining
+            echo "<pre>Row Data Combined: " . json_encode($rowdata, JSON_PRETTY_PRINT) . "</pre>";
+
             // Set start date if it's the first transaction
             if ($this->mt940param['startdate'] === null) {
                 $this->mt940param['startdate'] = date("ymd", strtotime($rowdata[$this->mapping['TRANSACTION_DATE']]));
+                echo "<pre>Start Date Set: " . $this->mt940param['startdate'] . "</pre>";
             }
 
             // Process transaction amounts and charges
             $transactionAmount = str_replace(",", ".", str_replace(".", "", $rowdata[$this->mapping['TRANSACTION_AMOUNT']]));
             $transactionChargeAmount = str_replace(",", ".", str_replace(".", "", $rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']]));
 
+            // Debug: Output parsed amounts
+            echo "<pre>Transaction Amount Parsed: $transactionAmount, Transaction Charge Amount Parsed: $transactionChargeAmount</pre>";
+
             // Convert to correct numerical format
             $transactionAmount = (float)$transactionAmount;
             $transactionChargeAmount = (float)$transactionChargeAmount;
+
+            // Debug: Output numerical amounts
+            echo "<pre>Transaction Amount Float: $transactionAmount, Transaction Charge Amount Float: $transactionChargeAmount</pre>";
 
             if (!empty($rowdata[$this->mapping['TRANSACTION_EVENTCODE']]) && !in_array($rowdata[$this->mapping['TRANSACTION_EVENTCODE']], $this->mapping['CHECK_EXCLUDECODE'])) {
                 // Determine transaction type and adjust totals
@@ -94,6 +104,9 @@ class amazonPayExternal {
                     $this->amountTotal -= $transactionAmount;
                     $this->amountTotal += $transactionChargeAmount; // Add charges back to the total
                 }
+
+                // Debug: Output transaction types and updated total
+                echo "<pre>Transaction Type: $transactionType, Charge Type: $transactionChargeType, Total Amount: $this->amountTotal</pre>";
 
                 $name = strtoupper(preg_replace('/[^a-z0-9 ]/i', '_', $rowdata[$this->mapping['TRANSACTION_SELLER_NAME']]));
                 $event = substr($rowdata[$this->mapping['TRANSACTION_EVENTCODE']], 0, 30);
@@ -119,6 +132,9 @@ class amazonPayExternal {
                     'PAYMENT_STATE' => 'S'
                 ];
 
+                // Debug: Output MT940 entry
+                echo "<pre>MT940 Entry: " . json_encode($mt940, JSON_PRETTY_PRINT) . "</pre>";
+
                 $this->data[] = $mt940;
                 $this->dataCount++;
             }
@@ -127,9 +143,10 @@ class amazonPayExternal {
             $this->mt940param['enddate'] = date("ymd", strtotime($rowdata[$this->mapping['TRANSACTION_DATE']]));
         }
 
-        // Set final balance for MT940
-        $this->mt940param['endbalance'] = number_format($this->amountTotal, 2, ',', '');
+        // Debug: Output end balance
+        echo "<pre>End Balance: " . $this->amountTotal . "</pre>";
 
+        // Set final balance for MT940
         if ($this->amountTotal < 0) {
             $SH = "D";
             $this->amountTotal = abs($this->amountTotal);
@@ -138,6 +155,9 @@ class amazonPayExternal {
         }
         $this->mt940param["TotalAmount"] = number_format($this->amountTotal, 2, ',', '');
         $this->mt940param["TotalSH"] = $SH;
+
+        // Debug: Output total amount and SH
+        echo "<pre>Total Amount: " . $this->mt940param['TotalAmount'] . ", SH: " . $this->mt940param['TotalSH'] . "</pre>";
     }
 
     public function getAllData() {
@@ -165,13 +185,26 @@ class amazonPayExternal {
         $mt940[] = ":28C:00000";
         $mt940[] = ":60F:" . $this->mt940param['TotalSH'] . $this->mt940param['startdate'] . $this->mt940param['currency'] . "0,00";
 
+        // Debug: Output MT940 header
+        echo "<pre>MT940 Header: " . implode("\r\n", $mt940) . "</pre>";
+
         foreach ($this->data as $transaction) {
-            $mt940[] = ":61:" . $transaction['PAYMENT_DATE'] . $transaction['PAYMENT_TYPE'] . $transaction['PAYMENT_AMOUNT'] . "NMSC" . $transaction['PAYMENT_CODE'];
-            $mt940[] = ":86:" . $transaction['PAYMENT_TEXT00'] . " " . $transaction['PAYMENT_TEXT20'] . " " . $transaction['PAYMENT_TEXT22'];
+            $transactionEntry = ":61:" . $transaction['PAYMENT_DATE'] . $transaction['PAYMENT_TYPE'] . $transaction['PAYMENT_AMOUNT'] . "NMSC" . $transaction['PAYMENT_CODE'];
+            $descriptionEntry = ":86:" . $transaction['PAYMENT_TEXT00'] . " " . $transaction['PAYMENT_TEXT20'] . " " . $transaction['PAYMENT_TEXT22'];
+
+            // Debug: Output each transaction and description entry
+            echo "<pre>Transaction Entry: $transactionEntry</pre>";
+            echo "<pre>Description Entry: $descriptionEntry</pre>";
+
+            $mt940[] = $transactionEntry;
+            $mt940[] = $descriptionEntry;
         }
 
         // Add end balance
         $mt940[] = ":62F:" . $this->mt940param['TotalSH'] . $this->mt940param['enddate'] . $this->mt940param['currency'] . $this->mt940param['TotalAmount'];
+
+        // Debug: Output MT940 footer
+        echo "<pre>MT940 Footer: " . end($mt940) . "</pre>";
 
         return implode("\r\n", $mt940);
     }

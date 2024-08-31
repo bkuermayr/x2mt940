@@ -72,7 +72,7 @@ class amazonPayExternal {
 		$row6 = $this->infile->readCSV(',');
 		print "ROW6: ".json_encode($row6)."<br>";
 
-		while (($row = $this->infile->readCSV(',')) !== FALSE) {
+		while (($row = $this->infile->readCSV(',')) !== false) {
 			$rowCount++;
 			print "Reading new row ($rowCount): " . json_encode($row) . "<br>";
 

@@ -58,12 +58,13 @@ class amazonPayExternal {
 			return true;
 		}
 		
-
 		while (($row = $this->infile->readCSV(',')) !== false) {
 			$rowCount++;
+			print "Reading new row ($rowCount): " . json_encode($row) . "<br>";
 
 			$rowdata = [];
 			$rowdata = array_combine($this->ppHeader,$row);
+			print "ROWDATA: ".json_encode($rowdata)."<br>";
 			if ($this->mt940param['startdate'] == null) {
 				$this->mt940param['startdate']	= $rowdata[$this->mapping['TRANSACTION_DATE']];
 			}

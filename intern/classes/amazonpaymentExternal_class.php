@@ -41,30 +41,29 @@ class amazonPayExternal {
 		$this->mt940param['enddate'] = null;
 
 		// Read the CSV header
-		do {
-			$row = $this->infile->readCSV(',');
-			// Check if end of file is reached
-			if ($row === false) {
-				break; // Exit the loop if no more rows are available
+		$headerRead = false;
+		while (($row = $this->infile->readCSV(',')) !== false) {
+			if (!$headerRead) {
+				// Remove BOM and quotes
+				if (!empty($row[0])) {
+					$row[0] = str_replace("\xEF\xBB\xBF", '', $row[0]);
+					$row[0] = trim($row[0], "\"");
+				}
+
+				// Set header and print for debugging
+				$this->ppHeader = $row;
+				echo "<pre>Header Row: " . json_encode($this->ppHeader, JSON_PRETTY_PRINT) . "</pre>";
+				$headerRead = true;
+				continue;  // Continue to the next loop to read data rows
 			}
 
-
-	        if (!empty($row[0])) {
-				// Remove BOM character and quotes from the start and end of the first header
-				$row[0] = str_replace("\xEF\xBB\xBF", '', $row[0]); // Remove BOM
-				$row[0] = trim($row[0], "\"");  // Remove extra quotes
-			}
-
-			
-			// Output the header row in JSON format for debugging
-			echo "<pre>Header Row: " . json_encode($row, JSON_PRETTY_PRINT) . "</pre>";
-
-		} while ($row[0] != $this->mapping['TRANSACTION_DATE']);
-		unset($row[15]);
-		$this->ppHeader = $row;
+			// Print each data row for debugging
+			echo "<pre>Data Row: " . json_encode($row, JSON_PRETTY_PRINT) . "</pre>";
+		}
 
 		// Output the final header after setting it
-		echo "<pre>Final Header: " . json_encode($this->ppHeader, JSON_PRETTY_PRINT) . "</pre>";		
+		echo "<pre>Final Header: " . json_encode($this->ppHeader, JSON_PRETTY_PRINT) . "</pre>";
+
 	}
 	
 	public function importData() {

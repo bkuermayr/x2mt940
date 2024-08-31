@@ -33,22 +33,29 @@ class amazonPayExternal {
         $this->mt940param['startdate'] = null;
         $this->mt940param['enddate'] = null;
 
-        // Read the CSV header
-        $headerRead = false;
-        while (($row = $this->infile->readCSV(',')) !== false) {
-            if (!$headerRead) {
-                // Remove BOM and quotes
-                if (!empty($row[0])) {
-                    $row[0] = str_replace("\xEF\xBB\xBF", '', $row[0]);
-                    $row[0] = trim($row[0], "\"");
-                }
+		// Read the CSV header
+		$headerRead = false;
+		while (($row = $this->infile->readCSV(',')) !== false) {
+			if (!$headerRead) {
+				// Remove BOM and quotes
+				if (!empty($row[0])) {
+					$row[0] = str_replace("\xEF\xBB\xBF", '', $row[0]);
+					$row[0] = trim($row[0], "\"");
+				}
 
-                // Set header
-                $this->ppHeader = $row;
-                $headerRead = true;
-                continue;
-            }
-        }
+				// Set header and print for debugging
+				$this->ppHeader = $row;
+				echo "<pre>Header Row: " . json_encode($this->ppHeader, JSON_PRETTY_PRINT) . "</pre>";
+				$headerRead = true;
+				continue;  // Continue to the next loop to read data rows
+			}
+
+			// Print each data row for debugging
+			echo "<pre>Data Row: " . json_encode($row, JSON_PRETTY_PRINT) . "</pre>";
+		}
+
+		// Output the final header after setting it
+		echo "<pre>Final Header: " . json_encode($this->ppHeader, JSON_PRETTY_PRINT) . "</pre>";
     }
 
     public function importData() {

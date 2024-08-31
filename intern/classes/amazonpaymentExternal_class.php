@@ -47,12 +47,7 @@ class amazonPayExternal {
 			if ($row === false) {
 				break; // Exit the loop if no more rows are available
 			}
-
-			// Remove BOM if present
-			if (!empty($row[0])) {
-				$row[0] = trim($row[0], "\"\xEF\xBB\xBF");
-			}
-
+			
 			// Output the header row in JSON format for debugging
 			echo "<pre>Header Row: " . json_encode($row, JSON_PRETTY_PRINT) . "</pre>";
 

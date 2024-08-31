@@ -41,6 +41,12 @@ $adyen['toCustomer'] = "100010"; // customer range
 $adyen['extractTid'] = false; // extract real TransactionID without itemID
 $adyen['payout'] = true; // Generate payout mt940 data 
 
+# amazon payment
+$amazon['blz'] = "90000001";  // dummy BLZ for Import
+$amazon['konto'] = "9100000105"; // Default account
+$amazon['fromCustomer'] = "100000"; // customer range 
+$amazon['toCustomer'] = "100010"; // customer range 
+$amazon['currency'] = "EUR"; // Default Currency 
 
 # WWS config
 $wwsClassName = "MT940_dummyERP";
@@ -60,7 +66,6 @@ if ($_SESSION['user'] == 999) {
     ini_set("display_errors", 1);
 }
 
-
 $docpath = "./docs/";
 
 date_default_timezone_set("Europe/Berlin");
@@ -71,19 +76,20 @@ $menu_name['root']['PayPal']  = './pp_converter.php';
 $menu_name['root']['Otto Payment']  = './ottopayment.php';
 $menu_name['root']['Real.de Payment']  = './realpayment.php';
 $menu_name['root']['Adyen']  = './adyen.php';
+$menu_name['root']['Amazon Payment'] = './amazon.php'; // Added Amazon Payment
 //$menu_name['root']['Eurobaustoff']  = './eb_converter.php';
 $menu_name['root']['Logout']  = './logout.php';
 
 $menu_name['user']['Startseite']  = './home.php'; 
 if (isset($_SESSION["uid"])) {
-	if ($_SESSION['level'] >= 0) { $menu_name['user']['PayPal']  = './pp_converter.php'; }
-	if ($_SESSION['level'] >= 0) { $menu_name['user']['Otto Payment']  = './ottopayment.php'; }
-	if ($_SESSION['level'] >= 0) { $menu_name['user']['Real.de Payment']  = './realpayment.php'; }
-	if ($_SESSION['level'] >= 0) { $menu_name['user']['Adyen']  = './adyen.php'; }
-	if ($_SESSION['level'] >= 9) { $menu_name['user']['Eurobaustoff']  = './eb_converter.php'; }
+    if ($_SESSION['level'] >= 0) { $menu_name['user']['PayPal']  = './pp_converter.php'; }
+    if ($_SESSION['level'] >= 0) { $menu_name['user']['Otto Payment']  = './ottopayment.php'; }
+    if ($_SESSION['level'] >= 0) { $menu_name['user']['Real.de Payment']  = './realpayment.php'; }
+    if ($_SESSION['level'] >= 0) { $menu_name['user']['Adyen']  = './adyen.php'; }
+    if ($_SESSION['level'] >= 0) { $menu_name['user']['Amazon Payment'] = './amazon.php'; } // Added Amazon Payment
+    if ($_SESSION['level'] >= 9) { $menu_name['user']['Eurobaustoff']  = './eb_converter.php'; }
 }
 
 $menu_name['user']['Logout']  = './logout.php';
-
 
 ?>

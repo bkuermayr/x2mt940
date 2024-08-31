@@ -39,20 +39,24 @@ class amazonPayExternal {
 
 		$this->mt940param['startdate'] = null;
 		$this->mt940param['enddate'] = null;
-		do {
-			$row = $this->infile->readCSV(',');
 
-			if (!empty($row[0])) {
-				// Remove BOM and quotes from the first element of the row
-				$row[0] = str_replace("\xEF\xBB\xBF", '', $row[0]);
-				$row[0] = trim($row[0], "\"");
-			}
+		// Read the CSV header
+        $headerRead = false;
+        while (($row = $this->infile->readCSV(',')) !== false) {
+            if (!$headerRead) {
+                // Remove BOM and quotes
+                if (!empty($row[0])) {
+                    $row[0] = str_replace("\xEF\xBB\xBF", '', $row[0]);
+                    $row[0] = trim($row[0], "\"");
+                }
 
-			// Assign the corrected header row to ppHeader
-			$this->ppHeader = $row;
+                // Set header and print for debugging
+                $this->ppHeader = $row;
+                $headerRead = true;
+                continue;  // Continue to the next loop to read data rows
+            }
 
-		} while ($row[1] != $this->mapping['TRANSACTION_SELLER_ID']);
-		unset($this->ppHeader[15]); // Correctly using $this->ppHeader
+        }		
 	}
 	
 	public function importData() {

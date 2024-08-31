@@ -18,7 +18,6 @@
 		$line = trim($line,"\"\xEF\xBB\xBF");
 		$paymentFile->close();
 		// if (substr($line, 0, 24) == 'Amazon Payments Advanced') {
-		print "<b>Amazon Payments Advanced found</b><br/>";
 		$opdata =  new amazonPayExternal($uploadFile->getCheckedPathName());
 		// } 
 		/*else {

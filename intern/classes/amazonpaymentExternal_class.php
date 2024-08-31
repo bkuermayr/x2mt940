@@ -133,7 +133,7 @@ class amazonPayExternal {
 						'PAYMENT_AMOUNT' => str_replace(".",",",sprintf("%01.2f",$rowdata[$this->mapping['TRANSACTION_AMOUNT']])),
 						'PAYMENT_NDDT' => $defaultInvoice,
 						'PAYMENT_TEXT00' => 'AMAZON',
-						'PAYMENT_TEXT20' => 'AMAZON '.$defaultCustomer,
+						'PAYMENT_TEXT20' => 'AMAZON '.$defaultCustomer.' '.$rowdata[$this->mapping['TRANSACTION_SELLER_ID']],
 						'PAYMENT_TEXT21' => $invoiceStr,
 						'PAYMENT_TEXT22' => $rowdata[$this->mapping['TRANSACTION_CODE']],
 						'PAYMENT_TEXT23' => $event." ".strtoupper($name),

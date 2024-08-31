@@ -47,6 +47,14 @@ class amazonPayExternal {
 			if ($row === false) {
 				break; // Exit the loop if no more rows are available
 			}
+
+
+	        if (!empty($row[0])) {
+				// Remove BOM character and quotes from the start and end of the first header
+				$row[0] = str_replace("\xEF\xBB\xBF", '', $row[0]); // Remove BOM
+				$row[0] = trim($row[0], "\"");  // Remove extra quotes
+			}
+
 			
 			// Output the header row in JSON format for debugging
 			echo "<pre>Header Row: " . json_encode($row, JSON_PRETTY_PRINT) . "</pre>";

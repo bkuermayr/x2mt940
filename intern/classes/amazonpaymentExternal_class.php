@@ -44,8 +44,7 @@ class amazonPayExternal {
 			echo "ROW: ".json_encode($row)."<br>";
 
 			# remove bom from first row
-			$row[0] = trim($row[0], "\xEF\xBB\xBF");
-		} while (trim($row[0], "\xEF\xBB\xBF") != $this->mapping['TRANSACTION_DATE']);
+		} while ($row[1] != $this->mapping['TRANSACTION_SELLER_ID']);
 		unset($row[15]);
 		$this->ppHeader = $row;
 		

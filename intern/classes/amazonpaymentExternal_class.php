@@ -46,16 +46,19 @@ class amazonPayExternal {
 		unset($row[15]);
 		$this->ppHeader = $row;
 		
+		echo "HEADER: ".json_encode($this->ppHeader)."<br>";
 	}
 	
 	public function importData() {
 		if (count($this->data) > 0) {
+			echo "Data already imported";
 			return true;
 		}
 		
 		while (($row = $this->infile->readCSV(',')) !== FALSE) {
 			$rowdata = [];
 			$rowdata = array_combine($this->ppHeader,$row);
+			echo "ROWDATA: ".json_encode($rowdata)."<br>";
 			if ($this->mt940param['startdate'] == null) {
 				$this->mt940param['startdate']	= $rowdata[$this->mapping['TRANSACTION_DATE']];
 			}

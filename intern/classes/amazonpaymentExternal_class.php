@@ -61,9 +61,6 @@ class amazonPayExternal {
 	}
 	
 	public function importData() {
-		if (count($this->data) > 0) {
-			return true;
-		}
 		
 		while (($row = $this->infile->readCSV(',')) !== false) {
 			echo "<pre>Row Import Data: " . json_encode($row, JSON_PRETTY_PRINT) . "</pre>";

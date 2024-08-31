@@ -58,9 +58,15 @@ class amazonPayExternal {
 			return true;
 		}
 		
-		while (($row = $this->infile->readCSV(',')) !== false) {
+		while (true) {
+			$row = $this->infile->readCSV(',');
 			$rowCount++;
 			print "Reading new row ($rowCount): " . json_encode($row) . "<br>";
+
+			if ($row == false) {
+				print "End of file reached<br>";
+				break;
+			}
 
 			$rowdata = [];
 			$rowdata = array_combine($this->ppHeader,$row);

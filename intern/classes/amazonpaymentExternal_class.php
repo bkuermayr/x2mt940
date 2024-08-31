@@ -39,14 +39,28 @@ class amazonPayExternal {
 
 		$this->mt940param['startdate'] = null;
 		$this->mt940param['enddate'] = null;
+
+		// Read the header row first
+		$this->ppHeader = $this->infile->readCSV(',');
+
+		// Check if the header is valid
+		if ($this->ppHeader === false) {
+			echo "Error: Unable to read header row.<br>";
+			return;
+		}
+
+		echo "HEADER: " . json_encode($this->ppHeader) . "<br>";
+
+		// Read the remaining rows
 		do {
 			$row = $this->infile->readCSV(',');
-			echo "ROW: ".json_encode($row)."<br>";
-		} while ($row[0] != $this->mapping['TRANSACTION_DATE'] and $row != FALSE);
-		unset($row[15]);
-		$this->ppHeader = $row;
-		
-		echo "HEADER: ".json_encode($this->ppHeader)."<br>";
+			echo "ROW: " . json_encode($row) . "<br>";
+		} while ($row[0] != $this->mapping['TRANSACTION_DATE'] && $row !== false);
+
+		// Unset the 16th element if it exists
+		if (isset($row[15])) {
+			unset($row[15]);
+		}
 	}
 	
 	public function importData() {

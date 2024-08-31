@@ -41,20 +41,21 @@ class amazonPayExternal {
 		$this->mt940param['enddate'] = null;
 		do {
 			$row = $this->infile->readCSV(',');
-			echo "ROW: ".json_encode($row)."<br>";
+			echo "ROW: " . json_encode($row) . "<br>";
 
 			if (!empty($row[0])) {
+				// Remove BOM and quotes from the first element of the row
 				$row[0] = str_replace("\xEF\xBB\xBF", '', $row[0]);
 				$row[0] = trim($row[0], "\"");
 			}
 
-			$row[0] = trim($this->ppHeader[0], "\ufeff\"");
+			// Assign the corrected header row to ppHeader
+			$this->ppHeader = $row;
 
 		} while ($row[1] != $this->mapping['TRANSACTION_SELLER_ID']);
-		unset($row[15]);
-		$this->ppHeader = $row;
-		
-		echo "HEADER: ".json_encode($this->ppHeader)."<br>";
+		unset($this->ppHeader[15]); // Correctly using $this->ppHeader
+
+		echo "HEADER: " . json_encode($this->ppHeader) . "<br>";
 	}
 	
 	public function importData() {

@@ -33,29 +33,29 @@ class amazonPayExternal {
         $this->mt940param['startdate'] = null;
         $this->mt940param['enddate'] = null;
 
-		// Read the CSV header
-		$headerRead = false;
-		while (($row = $this->infile->readCSV(',')) !== false) {
-			if (!$headerRead) {
-				// Remove BOM and quotes
-				if (!empty($row[0])) {
-					$row[0] = str_replace("\xEF\xBB\xBF", '', $row[0]);
-					$row[0] = trim($row[0], "\"");
-				}
+        // Read the CSV header
+        $headerRead = false;
+        while (($row = $this->infile->readCSV(',')) !== false) {
+            if (!$headerRead) {
+                // Remove BOM and quotes
+                if (!empty($row[0])) {
+                    $row[0] = str_replace("\xEF\xBB\xBF", '', $row[0]);
+                    $row[0] = trim($row[0], "\"");
+                }
 
-				// Set header and print for debugging
-				$this->ppHeader = $row;
-				echo "<pre>Header Row: " . json_encode($this->ppHeader, JSON_PRETTY_PRINT) . "</pre>";
-				$headerRead = true;
-				continue;  // Continue to the next loop to read data rows
-			}
+                // Set header and print for debugging
+                $this->ppHeader = $row;
+                echo "<pre>Header Row: " . json_encode($this->ppHeader, JSON_PRETTY_PRINT) . "</pre>";
+                $headerRead = true;
+                continue;  // Continue to the next loop to read data rows
+            }
 
-			// Print each data row for debugging
-			echo "<pre>Data Row: " . json_encode($row, JSON_PRETTY_PRINT) . "</pre>";
-		}
+            // Print each data row for debugging
+            echo "<pre>Data Row: " . json_encode($row, JSON_PRETTY_PRINT) . "</pre>";
+        }
 
-		// Output the final header after setting it
-		echo "<pre>Final Header: " . json_encode($this->ppHeader, JSON_PRETTY_PRINT) . "</pre>";
+        // Output the final header after setting it
+        echo "<pre>Final Header: " . json_encode($this->ppHeader, JSON_PRETTY_PRINT) . "</pre>";
     }
 
     public function importData() {
@@ -79,8 +79,7 @@ class amazonPayExternal {
             $transactionAmount = (float)$transactionAmount;
             $transactionChargeAmount = (float)$transactionChargeAmount;
 
-            if (!in_array($rowdata[$this->mapping['TRANSACTION_EVENTCODE']], $this->mapping['CHECK_EXCLUDECODE'])) {
-
+            if (!empty($rowdata[$this->mapping['TRANSACTION_EVENTCODE']]) && !in_array($rowdata[$this->mapping['TRANSACTION_EVENTCODE']], $this->mapping['CHECK_EXCLUDECODE'])) {
                 // Determine transaction type and adjust totals
                 if ($transactionAmount > 0) {
                     $transactionType = "C";
@@ -98,9 +97,6 @@ class amazonPayExternal {
 
                 $name = strtoupper(preg_replace('/[^a-z0-9 ]/i', '_', $rowdata[$this->mapping['TRANSACTION_SELLER_NAME']]));
                 $event = substr($rowdata[$this->mapping['TRANSACTION_EVENTCODE']], 0, 30);
-                if ($event == $this->mapping['TRANSACTION_EVENTCODE']) {
-                    $event .= " PAYOUT";
-                }
 
                 // Create MT940 transaction entry
                 $mt940 = [
@@ -180,4 +176,5 @@ class amazonPayExternal {
         return implode("\r\n", $mt940);
     }
 }
+
 ?>

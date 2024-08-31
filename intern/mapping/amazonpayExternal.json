@@ -7,5 +7,12 @@
 	"TRANSACTION_DATE": "TransactionPostedDate",
 	"TRANSACTION_CODE": "AmazonOrderReferenceId",
 	"ORDER_DATE": "TransactionPostedDate",
+	"CHECK_EXCLUDECODE": {
+		"0": "--",
+		"1": "--"
+	},
+	"CHECK_FINISH_STAT": "--",
+	"CHECK_CR_TYPE": "--",
+	"CHECK_CANCEL_PAYMENT": "--",
 	"CHECK_PAYOUT": "Transfer"
 }

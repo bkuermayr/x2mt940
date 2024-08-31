@@ -94,8 +94,8 @@ class amazonPayExternal {
 					$rowdata[$this->mapping['TRANSACTION_AMOUNT']] = abs($rowdata[$this->mapping['TRANSACTION_AMOUNT']]);
 					$rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']] = abs($rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']]);
 
-					$this->amountTotal -= $rowdata[$this->mapping['TRANSACTION_AMOUNT']];
-					$this->amountTotal -= $rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']];
+					$this->amountTotal -= abs($rowdata[$this->mapping['TRANSACTION_AMOUNT']]);
+					$this->amountTotal -= abs($rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']]);
 				}
 			
 				$name = strtoupper(preg_replace( '/[^a-z0-9 ]/i', '_', $rowdata[$this->mapping['TRANSACTION_SELLER_NAME']]));

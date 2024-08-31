@@ -86,8 +86,7 @@ class amazonPayExternal {
 					$transactionType = "C";
 					$transactionChargeType = "D";
 					$this->amountTotal += $rowdata[$this->mapping['TRANSACTION_AMOUNT']];
-					$this->amountTotal += $rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']];
-
+					$this->amountTotal += floatval($rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']]);
 					$rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']] = abs($rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']]);
 				} else {
 					$transactionType = "D";

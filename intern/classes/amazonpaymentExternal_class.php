@@ -14,49 +14,38 @@ class amazonPayExternal {
 	private $mapping;
 	
 	public function __construct($fileName) {
+
 		include './intern/config.php';
 
-		// Initialize variables
+		// initialize variables
 		$this->mt940param = $amazon;
 		$this->data = [];
 		$this->amountTotal = 0;
 		$this->dataPos = 0;
 		$this->dataCount = 0;
 		
-		// Connect to wws/erp for invoice details
+		// connect to wws/erp for invoice details
+		// dynamically wws/erp connection in config.php with a new class
 		$this->wwsInvoices = new $wwsClassName();
 
 		$this->infile = new myfile($fileName);
 
-		// Load the mapping file
-		if (file_exists("./intern/mapping/" . $mapping_prefix . "amazonpayExternal.json")) {
-			$mapping = new myfile("./intern/mapping/" . $mapping_prefix . "amazonpayExternal.json", "readfull");
+		if (file_exists("./intern/mapping/".$mapping_prefix."amazonpayExternal.json")) {
+			$mapping = new myfile("./intern/mapping/".$mapping_prefix."amazonpayExternal.json","readfull");
 		} else {
-			$mapping = new myfile("./intern/mapping/amazonpayExternal.json", "readfull");
+			$mapping = new myfile("./intern/mapping/amazonpayExternal.json","readfull");
 		}
 		$this->mapping = $mapping->readJson();
 
-		// Initialize date parameters
 		$this->mt940param['startdate'] = null;
 		$this->mt940param['enddate'] = null;
-
-        // Read the CSV header
-        $headerRead = false;
-        while (($row = $this->infile->readCSV(',')) !== false) {
-            if (!$headerRead) {
-                // Remove BOM and quotes
-                if (!empty($row[0])) {
-                    $row[0] = str_replace("\xEF\xBB\xBF", '', $row[0]);
-                    $row[0] = trim($row[0], "\"");
-                }
-
-                // Set header and print for debugging
-                $this->ppHeader = $row;
-                $headerRead = true;
-                continue;  // Continue to the next loop to read data rows
-            }
-
-        }		
+		do {
+			$row = $this->infile->readCSV(',');
+		echo "ROW: ".json_encode($row)."<br>";
+		} while ($row[0] != $this->mapping['TRANSACTION_DATE']);
+		unset($row[15]);
+		$this->ppHeader = $row;
+		
 	}
 	
 	public function importData() {

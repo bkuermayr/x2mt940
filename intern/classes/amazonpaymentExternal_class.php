@@ -58,27 +58,12 @@ class amazonPayExternal {
 			return true;
 		}
 		
-		print "PPHEADER: ".json_encode($this->ppHeader)."<br>";
-		$row = $this->infile->readCSV(',');
-		print "ROW: ".json_encode($row)."<br>";
-		$row2 = $this->infile->readCSV(',');
-		print "ROW2: ".json_encode($row2)."<br>";
-		$row3 = $this->infile->readCSV(',');
-		print "ROW3: ".json_encode($row3)."<br>";
-		$row4 = $this->infile->readCSV(',');
-		print "ROW4: ".json_encode($row4)."<br>";
-		$row5 = $this->infile->readCSV(',');
-		print "ROW5: ".json_encode($row5)."<br>";
-		$row6 = $this->infile->readCSV(',');
-		print "ROW6: ".json_encode($row6)."<br>";
 
 		while (($row = $this->infile->readCSV(',')) !== false) {
 			$rowCount++;
-			print "Reading new row ($rowCount): " . json_encode($row) . "<br>";
 
 			$rowdata = [];
 			$rowdata = array_combine($this->ppHeader,$row);
-			print "ROWDATA: ".json_encode($rowdata)."<br>";
 			if ($this->mt940param['startdate'] == null) {
 				$this->mt940param['startdate']	= $rowdata[$this->mapping['TRANSACTION_DATE']];
 			}

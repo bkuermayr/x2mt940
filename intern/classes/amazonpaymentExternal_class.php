@@ -64,7 +64,9 @@ class amazonPayExternal {
 		print "PPHEADER: ".json_encode($this->ppHeader)."<br>";
 
 		while (($row = $this->infile->readCSV(',')) !== false) {
-			print "Reading new row: " . json_encode($row) . "<br>";
+			$rowCount++;
+			print "Reading new row ($rowCount): " . json_encode($row) . "<br>";
+
 			$rowdata = [];
 			$rowdata = array_combine($this->ppHeader,$row);
 			print "ROWDATA: ".json_encode($rowdata)."<br>";

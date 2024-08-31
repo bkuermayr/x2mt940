@@ -65,7 +65,9 @@ class amazonPayExternal {
 			return true;
 		}
 		
-		while (($row = $this->infile->readCSV(',')) !== FALSE) {
+		while (($row = $this->infile->readCSV(',')) !== false) {
+			echo "<pre>Row Import Data: " . json_encode($row, JSON_PRETTY_PRINT) . "</pre>";
+
 			$rowdata = [];
 			$rowdata = array_combine($this->ppHeader,$row);
 			if ($this->mt940param['startdate'] == null) {
@@ -125,6 +127,7 @@ class amazonPayExternal {
 				
 //				if (($rowdata[$this->mapping['TRANSACTION_AMOUNT']] <> 0) and ($rowdata[$this->mapping['TRANSACTION_EVENTCODE']] == $this->mapping["CHECK_FINISH_STAT"])) {
 				if ($rowdata[$this->mapping['TRANSACTION_AMOUNT']] <> 0) {
+					echo "<pre>Mapping Transaction amount not zero: " . json_encode($rowdata, JSON_PRETTY_PRINT) . "</pre>";
 					
 					$mt940 = [
 						'PAYMENT_DATE' => date("ymd",strtotime($rowdata[$this->mapping['TRANSACTION_DATE']])),

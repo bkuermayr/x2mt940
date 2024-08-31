@@ -65,29 +65,35 @@ class amazonPayExternal {
 
         while (($row = $this->infile->readCSV(',')) !== FALSE) {
             $rowdata = array_combine($this->ppHeader, $row);
-            if ($this->mt940param['startdate'] == null) {
+
+            // Set start date if it's the first transaction
+            if ($this->mt940param['startdate'] === null) {
                 $this->mt940param['startdate'] = date("ymd", strtotime($rowdata[$this->mapping['TRANSACTION_DATE']]));
             }
 
-            $rowdata[$this->mapping['TRANSACTION_AMOUNT']] = str_replace(".", "", $rowdata[$this->mapping['TRANSACTION_AMOUNT']]);
-            $rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']] = str_replace(".", "", $rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']]);
-            $rowdata[$this->mapping['TRANSACTION_AMOUNT']] = str_replace(",", ".", $rowdata[$this->mapping['TRANSACTION_AMOUNT']]);
-            $rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']] = str_replace(",", ".", $rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']]);
+            // Process transaction amounts and charges
+            $transactionAmount = str_replace(",", ".", str_replace(".", "", $rowdata[$this->mapping['TRANSACTION_AMOUNT']]));
+            $transactionChargeAmount = str_replace(",", ".", str_replace(".", "", $rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']]));
+
+            // Convert to correct numerical format
+            $transactionAmount = (float)$transactionAmount;
+            $transactionChargeAmount = (float)$transactionChargeAmount;
 
             if (!in_array($rowdata[$this->mapping['TRANSACTION_EVENTCODE']], $this->mapping['CHECK_EXCLUDECODE'])) {
 
-                if ($rowdata[$this->mapping['TRANSACTION_AMOUNT']] > 0) {
+                // Determine transaction type and adjust totals
+                if ($transactionAmount > 0) {
                     $transactionType = "C";
                     $transactionChargeType = "D";
-                    $this->amountTotal += $rowdata[$this->mapping['TRANSACTION_AMOUNT']];
-                    $this->amountTotal += $rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']];
+                    $this->amountTotal += $transactionAmount;
+                    $this->amountTotal -= $transactionChargeAmount; // Subtract charges from the total
                 } else {
                     $transactionType = "D";
                     $transactionChargeType = "C";
-                    $rowdata[$this->mapping['TRANSACTION_AMOUNT']] = abs($rowdata[$this->mapping['TRANSACTION_AMOUNT']]);
-                    $rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']] = abs($rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']]);
-                    $this->amountTotal -= $rowdata[$this->mapping['TRANSACTION_AMOUNT']];
-                    $this->amountTotal -= $rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']];
+                    $transactionAmount = abs($transactionAmount);
+                    $transactionChargeAmount = abs($transactionChargeAmount);
+                    $this->amountTotal -= $transactionAmount;
+                    $this->amountTotal += $transactionChargeAmount; // Add charges back to the total
                 }
 
                 $name = strtoupper(preg_replace('/[^a-z0-9 ]/i', '_', $rowdata[$this->mapping['TRANSACTION_SELLER_NAME']]));
@@ -96,35 +102,36 @@ class amazonPayExternal {
                     $event .= " PAYOUT";
                 }
 
-                if ($rowdata[$this->mapping['TRANSACTION_AMOUNT']] != 0) {
-                    $mt940 = [
-                        'PAYMENT_DATE' => date("ymd", strtotime($rowdata[$this->mapping['TRANSACTION_DATE']])),
-                        'PAYMENT_TYPE' => $transactionType,
-                        'PAYMENT_AMOUNT' => str_replace(".", ",", sprintf("%01.2f", $rowdata[$this->mapping['TRANSACTION_AMOUNT']])),
-                        'PAYMENT_TEXT00' => 'AMAZON',
-                        'PAYMENT_TEXT20' => 'AMAZON ' . $name,
-                        'PAYMENT_TEXT21' => '',
-                        'PAYMENT_TEXT22' => $rowdata[$this->mapping['TRANSACTION_CODE']],
-                        'PAYMENT_TEXT23' => $event . " " . strtoupper($name),
-                        'PAYMENT_CODE' => $event,
-                        'CHARGE_DATE' => date("ymd", strtotime($rowdata[$this->mapping['TRANSACTION_DATE']])),
-                        'CHARGE_TYPE' => $transactionChargeType,
-                        'CHARGE_AMOUNT' => str_replace(".", ",", sprintf("%01.2f", $rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']])),
-                        'CHARGE_TEXT00' => 'AMAZON',
-                        'CHARGE_TEXT20' => 'AMAZON GEB.',
-                        'CHARGE_TEXT21' => $rowdata[$this->mapping['TRANSACTION_CODE']],
-                        'CHARGE_TEXT22' => strtoupper($name),
-                        'PAYMENT_STATE' => 'S'
-                    ];
+                // Create MT940 transaction entry
+                $mt940 = [
+                    'PAYMENT_DATE' => date("ymd", strtotime($rowdata[$this->mapping['TRANSACTION_DATE']])),
+                    'PAYMENT_TYPE' => $transactionType,
+                    'PAYMENT_AMOUNT' => number_format($transactionAmount, 2, ',', ''),
+                    'PAYMENT_TEXT00' => 'AMAZON',
+                    'PAYMENT_TEXT20' => 'AMAZON ' . $name,
+                    'PAYMENT_TEXT21' => '',
+                    'PAYMENT_TEXT22' => $rowdata[$this->mapping['TRANSACTION_CODE']],
+                    'PAYMENT_TEXT23' => $event . " " . strtoupper($name),
+                    'PAYMENT_CODE' => $event,
+                    'CHARGE_DATE' => date("ymd", strtotime($rowdata[$this->mapping['TRANSACTION_DATE']])),
+                    'CHARGE_TYPE' => $transactionChargeType,
+                    'CHARGE_AMOUNT' => number_format($transactionChargeAmount, 2, ',', ''),
+                    'CHARGE_TEXT00' => 'AMAZON',
+                    'CHARGE_TEXT20' => 'AMAZON GEB.',
+                    'CHARGE_TEXT21' => $rowdata[$this->mapping['TRANSACTION_CODE']],
+                    'CHARGE_TEXT22' => strtoupper($name),
+                    'PAYMENT_STATE' => 'S'
+                ];
 
-                    $this->data[] = $mt940;
-                    $this->dataCount++;
-                }
+                $this->data[] = $mt940;
+                $this->dataCount++;
             }
 
+            // Update end date to the latest transaction date
             $this->mt940param['enddate'] = date("ymd", strtotime($rowdata[$this->mapping['TRANSACTION_DATE']]));
         }
 
+        // Set final balance for MT940
         $this->mt940param['endbalance'] = number_format($this->amountTotal, 2, ',', '');
 
         if ($this->amountTotal < 0) {
@@ -160,14 +167,15 @@ class amazonPayExternal {
         $mt940[] = ":20:" . "AMZ" . date("ymdHis");
         $mt940[] = ":25:" . $this->mt940param['blz'] . "/" . $this->mt940param['konto'];
         $mt940[] = ":28C:00000";
-        $mt940[] = ":60F:" . $this->mt940param['TotalSH'] . date("ymd") . $this->mt940param['currency'] . "0,00";
+        $mt940[] = ":60F:" . $this->mt940param['TotalSH'] . $this->mt940param['startdate'] . $this->mt940param['currency'] . "0,00";
 
         foreach ($this->data as $transaction) {
             $mt940[] = ":61:" . $transaction['PAYMENT_DATE'] . $transaction['PAYMENT_TYPE'] . $transaction['PAYMENT_AMOUNT'] . "NMSC" . $transaction['PAYMENT_CODE'];
             $mt940[] = ":86:" . $transaction['PAYMENT_TEXT00'] . " " . $transaction['PAYMENT_TEXT20'] . " " . $transaction['PAYMENT_TEXT22'];
         }
 
-        $mt940[] = ":62F:" . $this->mt940param['TotalSH'] . date("ymd") . $this->mt940param['currency'] . $this->mt940param['TotalAmount'];
+        // Add end balance
+        $mt940[] = ":62F:" . $this->mt940param['TotalSH'] . $this->mt940param['enddate'] . $this->mt940param['currency'] . $this->mt940param['TotalAmount'];
 
         return implode("\r\n", $mt940);
     }

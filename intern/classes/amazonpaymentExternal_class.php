@@ -52,18 +52,11 @@ class amazonPayExternal {
 
                 // Set header and print for debugging
                 $this->ppHeader = $row;
-                echo "<pre>Header Row: " . json_encode($this->ppHeader, JSON_PRETTY_PRINT) . "</pre>";
                 $headerRead = true;
                 continue;  // Continue to the next loop to read data rows
             }
 
-            // Print each data row for debugging
-            echo "<pre>Data Row: " . json_encode($row, JSON_PRETTY_PRINT) . "</pre>";
-        }
-
-        // Output the final header after setting it
-        echo "<pre>Final Header: " . json_encode($this->ppHeader, JSON_PRETTY_PRINT) . "</pre>";
-		
+        }		
 	}
 	
 	public function importData() {

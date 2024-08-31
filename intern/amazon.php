@@ -30,8 +30,8 @@
 
 	}
 	$result = $opdata->getAllData();
-	print "<pre>Result:".json_encode($result, JSON_PRETTY_PRINT)."</pre>";
-	print "<pre>Parameter: ".json_encode($parameter, JSON_PRETTY_PRINT)."</pre>";
+	echo "<pre>Result:".json_encode($result, JSON_PRETTY_PRINT)."</pre>";
+	echo "<pre>Parameter: ".json_encode($parameter, JSON_PRETTY_PRINT)."</pre>";
 
 	$mt940data = new mt940();
 	$mt940data->generateMT940($result, $parameter);

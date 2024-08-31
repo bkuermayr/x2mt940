@@ -41,7 +41,6 @@ class amazonPayExternal {
 		$this->mt940param['enddate'] = null;
 		do {
 			$row = $this->infile->readCSV(',');
-			echo "ROW: " . json_encode($row) . "<br>";
 
 			if (!empty($row[0])) {
 				// Remove BOM and quotes from the first element of the row
@@ -54,8 +53,6 @@ class amazonPayExternal {
 
 		} while ($row[1] != $this->mapping['TRANSACTION_SELLER_ID']);
 		unset($this->ppHeader[15]); // Correctly using $this->ppHeader
-
-		echo "HEADER: " . json_encode($this->ppHeader) . "<br>";
 	}
 	
 	public function importData() {

@@ -43,7 +43,13 @@ class amazonPayExternal {
 			$row = $this->infile->readCSV(',');
 			echo "ROW: ".json_encode($row)."<br>";
 
-			$row[0] = trim($row[0], "\ufeff\"");
+			if (!empty($row[0])) {
+				$row[0] = str_replace("\xEF\xBB\xBF", '', $row[0]);
+				$row[0] = trim($row[0], "\"");
+			}
+
+			$row[0] = trim($this->ppHeader[0], "\ufeff\"");
+
 		} while ($row[1] != $this->mapping['TRANSACTION_SELLER_ID']);
 		unset($row[15]);
 		$this->ppHeader = $row;

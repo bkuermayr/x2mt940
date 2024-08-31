@@ -93,7 +93,7 @@ class amazonPayExternal {
 					$this->amountTotal -= abs(floatval($rowdata[$this->mapping['TRANSACTION_AMOUNT']]));
 					$this->amountTotal -= abs(floatval($rowdata[$this->mapping['TRANSACTION_CHARGEAMOUNT']]));
 				}		
-
+					
 				$name = strtoupper(preg_replace( '/[^a-z0-9 ]/i', '_', $rowdata[$this->mapping['TRANSACTION_SELLER_NAME']]));
 
 				$fromDate = date("Y-m-d",strtotime($rowdata[$this->mapping['ORDER_DATE']]));

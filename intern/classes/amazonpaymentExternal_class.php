@@ -14,44 +14,54 @@ class amazonPayExternal {
 	private $mapping;
 	
 	public function __construct($fileName) {
-
 		include './intern/config.php';
 
-		// initialize variables
+		// Initialize variables
 		$this->mt940param = $amazon;
 		$this->data = [];
 		$this->amountTotal = 0;
 		$this->dataPos = 0;
 		$this->dataCount = 0;
 		
-		// connect to wws/erp for invoice details
-		// dynamically wws/erp connection in config.php with a new class
+		// Connect to wws/erp for invoice details
 		$this->wwsInvoices = new $wwsClassName();
 
 		$this->infile = new myfile($fileName);
 
-		if (file_exists("./intern/mapping/".$mapping_prefix."amazonpayExternal.json")) {
-			$mapping = new myfile("./intern/mapping/".$mapping_prefix."amazonpayExternal.json","readfull");
+		// Load the mapping file
+		if (file_exists("./intern/mapping/" . $mapping_prefix . "amazonpayExternal.json")) {
+			$mapping = new myfile("./intern/mapping/" . $mapping_prefix . "amazonpayExternal.json", "readfull");
 		} else {
-			$mapping = new myfile("./intern/mapping/amazonpayExternal.json","readfull");
+			$mapping = new myfile("./intern/mapping/amazonpayExternal.json", "readfull");
 		}
 		$this->mapping = $mapping->readJson();
 
+		// Initialize date parameters
 		$this->mt940param['startdate'] = null;
 		$this->mt940param['enddate'] = null;
+
+		// Read the CSV header
 		do {
 			$row = $this->infile->readCSV(',');
+
 			// Check if end of file is reached
 			if ($row === false) {
 				break; // Exit the loop if no more rows are available
 			}
 
+			// Remove BOM if present
+			$row[0] = trim($row[0], "\"\xEF\xBB\xBF");
+			
 			print_r($row);
 
-		} while ($row[0] != $this->mapping['TRANSACTION_DATE']);
-		unset($row[15]);
-		$this->ppHeader = $row;
-		
+		} while ($row[0] !== 'TransactionPostedDate'); // Update to match actual CSV header name
+
+		if ($row !== false) {
+			unset($row[15]); // Adjust as needed based on your data requirements
+			$this->ppHeader = $row;
+		} else {
+			echo "Header row not found in CSV file.";
+		}
 	}
 	
 	public function importData() {
